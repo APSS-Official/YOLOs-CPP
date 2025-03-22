@@ -1,0 +1,8 @@
+{
+  "dependencies": [
+    {
+        "name": "opencv",
+        "version>=": "4.10.0"
+    }
+  ]
+}

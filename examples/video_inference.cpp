@@ -94,17 +94,20 @@ private:
     bool finished = false;
 };
 
-int main()
+int main(int argc, char* argv[])
 {
-    // Paths to the model, labels, input video, and output video
-    const std::string labelsPath = "../models/coco.names";
-    const std::string videoPath = "../data/SIG_experience_center.mp4"; // Input video path
-    const std::string outputPath = "../data/SIG_experience_center_processed.mp4"; // Output video path
+    // Usage: camera_inference.exe <model_path> <labels_file_path> <video_input_source> <video_output_source>
+    if (argc < 5)
+    {
+        std::cerr << "Usage: video_inference.exe <model_path> <labels_file_path> <video_input_source> <video_output_source>\n";
+        return 1;
+    }
 
-    // Model paths for different YOLO versions
-    // const std::string modelPath = "../models/yolov9s.onnx"; // YOLOv9
-    // const std::string modelPath = "../models/yolo11n.onnx"; // YOLOv11
-    const std::string modelPath = "../models/yolo12n.onnx"; // YOLOv12
+    // Paths to the model, labels, input video, and output video
+    const std::string modelPath = argv[1];
+    const std::string labelsPath = argv[2];
+    const std::string videoPath = argv[3]; // Input video path
+    const std::string outputPath = argv[4]; // Output video path
 
 
 

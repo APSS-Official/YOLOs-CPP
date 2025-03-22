@@ -1,63 +1,80 @@
-cmake_minimum_required(VERSION 3.0.0)
-project(yolo_ort)
+cmake_minimum_required(VERSION 3.21.1)
+cmake_policy(SET CMP0074 NEW)
 
-option(ONNXRUNTIME_DIR "Path to built ONNX Runtime directory." STRING)
-message(STATUS "ONNXRUNTIME_DIR: ${ONNXRUNTIME_DIR}")
+project(Framer VERSION 1.0.0 LANGUAGES CXX)
 
-find_package(OpenCV REQUIRED)
-
-include_directories("include/")
-
-# Add executable for image inference
-add_executable(image_inference
-               src/image_inference.cpp)
-
-# Add executable for camera inference
-add_executable(camera_inference
-               src/camera_inference.cpp)
-
-# Add executable for video inference
-add_executable(video_inference
-               src/video_inference.cpp)
-
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Set include directories for all executables
-target_include_directories(image_inference PRIVATE "${ONNXRUNTIME_DIR}/include")
-target_include_directories(camera_inference PRIVATE "${ONNXRUNTIME_DIR}/include")
-target_include_directories(video_inference PRIVATE "${ONNXRUNTIME_DIR}/include")
+option(Framer_BUILD_EXAMPLES "Build Examples" ON)
+option(Framer_INSTALL "Generate Installation Target" ON)
+option(Framer_GPU "Enable GPU support" OFF)
 
-# Set compile features for all executables
-target_compile_features(image_inference PRIVATE cxx_std_14)
-target_compile_features(camera_inference PRIVATE cxx_std_14)
-target_compile_features(video_inference PRIVATE cxx_std_14)
+# Add cmake dir to find .cmake files
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
-# Link libraries for all executables
-target_link_libraries(image_inference ${OpenCV_LIBS})
-target_link_libraries(camera_inference ${OpenCV_LIBS})
-target_link_libraries(video_inference ${OpenCV_LIBS})
+find_package(OpenCV 4.10.0 CONFIG REQUIRED)
+find_package(OnnxRuntime 1.21.0 REQUIRED) # Uses the cmake/FindOnnxRuntime.cmake, although we can have the (gpu) one from vcpkg. But that is older v1.19.2
 
-if(UNIX)
-    message(STATUS "We are building on Linux!")
-    # Specific Linux build commands or flags
-    target_link_libraries(image_inference "${ONNXRUNTIME_DIR}/lib/libonnxruntime.so")
-    target_link_libraries(camera_inference "${ONNXRUNTIME_DIR}/lib/libonnxruntime.so")
-    target_link_libraries(video_inference "${ONNXRUNTIME_DIR}/lib/libonnxruntime.so")
-endif(UNIX)
+add_library(Framer INTERFACE)
+add_library(Framer::Framer ALIAS Framer)
 
-if(APPLE)
-    message(STATUS "We are building on macOS!")
-    # Specific macOS build commands or flags
-    target_link_libraries(image_inference "${ONNXRUNTIME_DIR}/lib/libonnxruntime.dylib")
-    target_link_libraries(camera_inference "${ONNXRUNTIME_DIR}/lib/libonnxruntime.dylib")
-    target_link_libraries(video_inference "${ONNXRUNTIME_DIR}/lib/libonnxruntime.dylib")
-endif(APPLE)
+target_include_directories(Framer INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
+target_compile_features(Framer INTERFACE cxx_std_20)
+target_link_libraries(Framer INTERFACE
+    ${OpenCV_LIBS}
+    ${OnnxRuntime_LIBRARIES}
+    opencv_core
+    opencv_dnn
+    opencv_features2d
+    opencv_highgui
+    opencv_photo
+)
 
-if(WIN32)
-    message(STATUS "We are building on Windows!")
-    # Specific Windows build commands or flags
-    target_link_libraries(image_inference "${ONNXRUNTIME_DIR}/lib/onnxruntime.lib")
-    target_link_libraries(camera_inference "${ONNXRUNTIME_DIR}/lib/onnxruntime.lib")
-    target_link_libraries(video_inference "${ONNXRUNTIME_DIR}/lib/onnxruntime.lib")
-endif(WIN32)
+# Building examples
+if (Framer_BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
+
+if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
+    message(NOTICE "Framer is not part of any parent project.")
+    include(GNUInstallDirs)
+
+    install(TARGETS Framer
+        EXPORT FramerTargets
+        INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+    )
+
+    # For find_package
+    install(EXPORT FramerTargets
+        FILE FramerTargets.cmake
+        NAMESPACE Framer::
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/Framer"
+    )
+
+    install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+    include(CMakePackageConfigHelpers)
+    configure_package_config_file(
+        ${CMAKE_CURRENT_SOURCE_DIR}/cmake/FramerConfig.cmake.in
+        ${CMAKE_CURRENT_BINARY_DIR}/FramerConfig.cmake
+        INSTALL_DESTINATION ${CMAKE_INSTALL_DATADIR}/Framer
+    )
+
+    write_basic_package_version_file(
+        ${CMAKE_CURRENT_BINARY_DIR}/FramerConfigVersion.cmake
+        VERSION ${PROJECT_VERSION}
+        COMPATIBILITY SameMajorVersion
+    )
+
+    install(FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/FramerConfig.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/FramerConfigVersion.cmake
+        DESTINATION ${CMAKE_INSTALL_DATADIR}/Framer
+    )
+else()
+    message(NOTICE "Framer is part of the parent project: ${PROJECT_NAME}")
+endif()

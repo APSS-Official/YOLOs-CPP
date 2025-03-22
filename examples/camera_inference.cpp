@@ -61,33 +61,27 @@
 // #include "det/YOLO9.hpp"
 // #include "det/YOLO8.hpp"
 // #include "det/YOLO10.hpp"
-// #include "det/YOLO11.hpp" 
-#include "det/YOLO12.hpp" 
+// #include "det/YOLO11.hpp"
+#include "det/YOLO12.hpp"
 
 
 // Include the bounded queue
 #include "tools/BoundedThreadSafeQueue.hpp"
 
-int main()
+int main(int argc, char* argv[])
 {
+    // Usage: camera_inference.exe <model_path> <labels_file_path> <video_source>
+    if (argc < 4)
+    {
+        std::cerr << "Usage: camera_inference.exe <model_path> <labels_file_path> <video_source>\n";
+        return 1;
+    }
+
     // Configuration parameters
     const bool isGPU = true;
-    const std::string labelsPath = "../models/coco.names";
-
-    // std::string modelPath = "../models/yolo5-n6.onnx"; 
-    // const std::string modelPath = "../models/yolo7-tiny.onnx"; 
-    // std::string modelPath = "../models/yolo8n.onnx"; 
-    // std::string modelPath = "../models/yolo8n.onnx"; 
-    // const std::string modelPath = "../models/yolov9s.onnx"; 
-    // std::string modelPath = "../models/yolo10n_uint8.onnx"; 
-    // const std::string modelPath = "../models/yolo11n.onnx";
-    const std::string modelPath = "../models/yolo12n.onnx";
-
-
-
-
-
-    const std::string videoSource = "/dev/video0"; // your usb cam device
+    const std::string modelPath = argv[1];
+    const std::string labelsPath = argv[2];
+    const std::string videoSource = argv[3]; // your usb cam device
 
     // Initialize YOLO detector
     // YOLO9Detector detector(modelPath, labelsPath, isGPU);
@@ -96,7 +90,7 @@ int main()
 
     // Open video capture
     cv::VideoCapture cap;
-    cap.open(videoSource, cv::CAP_V4L2); // Specify V4L2 backend for better performance
+    cap.open(0, cv::CAP_V4L2); // Specify V4L2 backend for better performance
     if (!cap.isOpened())
     {
         std::cerr << "Error: Could not open the camera!\n";

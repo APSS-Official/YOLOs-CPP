@@ -1,6 +1,6 @@
 # YOLOs-CPP
 
-![cover](data/cover.png)
+![cover](assets/images/cover.png)
 
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
@@ -10,8 +10,13 @@
 ![CMake](https://img.shields.io/badge/CMake-3.22.1-blue.svg)
 
 
+## Disclaimer
+The original code belonged to [YOLOs-CPP](https://github.com/Geekgineer/YOLOs-CPP) by Geekgineer. Although they mentioned the type of license at the bottom, but have not provided a license file. We'll be maintaining this repo according to our needs. Thanks you Geekgineer!
+
+**The rest of instructions, code and rules will be changed soon.**
+
 ## Overview
-**YOLOs-CPP** provides single C++ headers with a high-performance application designed for real-time object detection, segmentation, oriented object detection (OBB), and pose estimation using various YOLO (You Only Look Once) models from [Ultralytics](https://github.com/ultralytics/ultralytics). Leveraging the power of [ONNX Runtime](https://github.com/microsoft/onnxruntime) and [OpenCV](https://opencv.org/), this project provides seamless integration with a unified YOLOv(5,7,8,9,10,11,12) implementation for image, video, and live camera inference. Whether you're developing for research, production, or hobbyist projects, this application offers flexibility and efficiency.
+**Framer** provides single C++ headers with a high-performance application designed for real-time object detection, segmentation, oriented object detection (OBB), and pose estimation using various YOLO (You Only Look Once) models from [Ultralytics](https://github.com/ultralytics/ultralytics). Leveraging the power of [ONNX Runtime](https://github.com/microsoft/onnxruntime) and [OpenCV](https://opencv.org/), this project provides seamless integration with a unified YOLOv(5,7,8,9,10,11,12) implementation for image, video, and live camera inference. Whether you're developing for research, production, or hobbyist projects, this application offers flexibility and efficiency.
 
 ## 📰 Latest Updates
 
@@ -38,21 +43,21 @@
   <tr>
     <td>
       <a href="https://www.youtube.com/watch?v=Ax5vaYJ-mVQ">
-        <img src="data/SIG_experience_center_seg_processed.gif" alt="Watch the Demo Video" width="400" height="225"/>
+        <img src="assets/images/SIG_experience_center_seg_processed.gif" alt="Watch the Demo Video" width="400" height="225"/>
       </a>
     </td>
     <td>
       <a href="https://www.youtube.com/watch?v=Ax5vaYJ-mVQ">
-        <img src="data/SIG_experience_center_seg_processed-2.gif" alt="Watch the Demo Video" width="400" height="225"/>
+        <img src="assets/images/SIG_experience_center_seg_processed-2.gif" alt="Watch the Demo Video" width="400" height="225"/>
       </a>
     </td>
   </tr>
   <tr>
     <td>
-      <img src="data/final_test_compressed_output.gif" alt="Demo GIF" width="400" height="225"/>
+      <img src="assets/images/final_test_compressed_output.gif" alt="Demo GIF" width="400" height="225"/>
     </td>
     <td>
-          <img src="data/dance_output.gif" alt="Demo GIF" width="400" height="225"/>
+          <img src="assets/images/dance_output.gif" alt="Demo GIF" width="400" height="225"/>
     </td>
   </tr>
 </table>
@@ -261,8 +266,8 @@ int main()
 
 Before building the project, ensure that the following dependencies are installed on your system:
 
-- **C++ Compiler**: Compatible with C++14 standard (e.g., `g++`, `clang++`, or MSVC).
-- **CMake**: Version 3.0.0 or higher.
+- **C++ Compiler**
+- **CMake**: Version 3.21.1 or higher.
 - **OpenCV**: Version 4.5.5 or higher.
 - **ONNX Runtime**: Tested with version 1.16.3 and 1.19.2, backward compatibility [Installed and linked automatically during the build].
 - **Python** (optional): For running the quantization script (`yolos_quantization.py`).

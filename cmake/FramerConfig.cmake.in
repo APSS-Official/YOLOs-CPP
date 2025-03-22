@@ -1,0 +1,8 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+find_dependency(OpenCV 4.10.0 REQUIRED)
+find_dependency(OnnxRuntime REQUIRED)
+
+include("${CMAKE_CURRENT_LIST_DIR}/FramerTargets.cmake")
+check_required_components(Framer)

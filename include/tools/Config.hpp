@@ -11,7 +11,7 @@
  */
 
 // Uncomment the following lines to enable debugging and timing
-// #define DEBUG_MODE
-// #define TIMING_MODE
+#define DEBUG_MODE
+#define TIMING_MODE
 
 #endif // CONFIG_HPP

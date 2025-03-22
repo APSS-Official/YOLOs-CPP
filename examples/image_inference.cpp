@@ -51,31 +51,24 @@
 
 
 
-int main(){
+int main(int argc, char* argv[])
+{
+    // Usage: camera_inference.exe <model_path> <labels_file_path> <image_path>
+    if (argc < 4)
+    {
+        std::cerr << "Usage: image_inference.exe <model_path> <labels_file_path> <image_path>\n";
+        return 1;
+    }
 
     // Paths to the model, labels, and test image
-    const std::string labelsPath = "../models/coco.names";
-    const std::string imagePath = "../data/dog.jpg";           // Primary image path
-
-    // Uncomment the desired image path for testing
-    // const std::string imagePath = "../data/happy_dogs.jpg";  // Alternate image
-    // const std::string imagePath = "../data/desk.jpg";        // Another alternate image
-
-    // Model paths for different YOLO versions
-    // Uncomment the desired model path for testing
-    // const std::string modelPath = "../models/yolo5-n6.onnx";      // YOLOv5
-    // const std::string modelPath = "../models/yolo7-tiny.onnx";       // YOLOv7
-    // const std::string modelPath = "../models/yolo8n.onnx"; // YOLOv8
-    // const std::string modelPath = "../models/yolov9s.onnx"; // YOLOv9 
-    // const std::string modelPath = "../models/yolo10n.onnx"; // YOLOv10 
-    // const std::string modelPath = "../quantized_models/yolo10n_uint8.onnx"; // Quantized YOLOv10
-    // const std::string modelPath = "../models/yolo11n.onnx"; // YOLOv11 
-    const std::string modelPath = "../models/yolo12n.onnx"; // YOLOv12 
+    const std::string modelPath = argv[1];
+    const std::string labelsPath = argv[2];
+    const std::string imagePath = argv[3];
 
 
 
     // Initialize the YOLO detector with the chosen model and labels
-    bool isGPU = true; // Set to false for CPU processing
+    bool isGPU = false; // Set to false for CPU processing
     // YOLO7Detector detector(modelPath, labelsPath, isGPU);
     // YOLO5Detector detector(modelPath, labelsPath, isGPU);  // Uncomment for YOLOv5
     // YOLO8Detector detector(modelPath, labelsPath, isGPU);  // Uncomment for YOLOv8
@@ -93,7 +86,8 @@ int main(){
         return -1;
     }
 
-    
+    // Enforcing a small preview.
+    cv::resize(image, image, cv::Size(640, 480));
 
     // Detect objects in the image and measure execution time
     auto start = std::chrono::high_resolution_clock::now();
