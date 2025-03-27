@@ -47,25 +47,34 @@
 // #include "det/YOLO9.hpp"  // Uncomment for YOLOv9
 // #include "det/YOLO10.hpp" // Uncomment for YOLOv10
 // #include "det/YOLO11.hpp" // Uncomment for YOLOv11
-#include "det/YOLO12.hpp" // Uncomment for YOLOv12
-
+#include "det/YOLO11.hpp" // Uncomment for YOLOv12
+#include "exports.h"
 
 
 int main(int argc, char* argv[])
 {
+    // Paths to the model, labels, and test image
+    std::string modelPath;
+    std::string labelsPath;
+    std::string imagePath;
+
     // Usage: camera_inference.exe <model_path> <labels_file_path> <image_path>
-    if (argc < 4)
-    {
+    if (argc < 4 && !EXAMPLES_ASSETS_DIR_ENABLED) {
         std::cerr << "Usage: image_inference.exe <model_path> <labels_file_path> <image_path>\n";
         return 1;
     }
 
-    // Paths to the model, labels, and test image
-    const std::string modelPath = argv[1];
-    const std::string labelsPath = argv[2];
-    const std::string imagePath = argv[3];
-
-
+    if (argc == 4) {
+        modelPath = argv[1];
+        labelsPath = argv[2];
+        imagePath = argv[3];
+    } else {
+        std::string assets_dir = std::string(EXAMPLES_ASSETS_DIR);
+        modelPath = assets_dir + "/yolo11l.onnx";
+        labelsPath = assets_dir + "/coco.txt";
+        imagePath = assets_dir + "/img1.jpg";
+        std::cout << "Selecting assets from " + assets_dir + " directory." << std::endl;
+    }
 
     // Initialize the YOLO detector with the chosen model and labels
     bool isGPU = false; // Set to false for CPU processing
@@ -75,7 +84,7 @@ int main(int argc, char* argv[])
     // YOLO9Detector detector(modelPath, labelsPath, isGPU); // Uncomment for YOLOv9
     // YOLO10Detector detector(modelPath, labelsPath, isGPU); // Uncomment for YOLOv10
     // YOLO11Detector detector(modelPath, labelsPath, isGPU); // Uncomment for YOLOv11
-    YOLO12Detector detector(modelPath, labelsPath, isGPU); // Uncomment for YOLOv12
+    Framer::YOLO11Detector detector(modelPath, labelsPath, isGPU); // Uncomment for YOLOv12
 
 
     // Load an image
@@ -86,12 +95,12 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    // Enforcing a small preview.
-    cv::resize(image, image, cv::Size(640, 480));
+    // Enforcing a small preview. Because of the image size I'm trying to load (3000x4000)
+    cv::resize(image, image, cv::Size(480, 640));
 
     // Detect objects in the image and measure execution time
     auto start = std::chrono::high_resolution_clock::now();
-    std::vector<Detection> results = detector.detect(image);
+    std::vector<Framer::Detection> results = detector.detect(image);
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
                         std::chrono::high_resolution_clock::now() - start);
 

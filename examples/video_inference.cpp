@@ -53,7 +53,8 @@
 // #include "det/YOLO9.hpp"  // Uncomment for YOLOv9
 // #include "det/YOLO10.hpp" // Uncomment for YOLOv10
 // #include "det/YOLO11.hpp" // Uncomment for YOLOv11
-#include "det/YOLO12.hpp" // Uncomment for YOLOv12
+#include "det/YOLO11.hpp" // Uncomment for YOLOv12
+#include "exports.h"
 
 
 // Thread-safe queue implementation
@@ -96,26 +97,37 @@ private:
 
 int main(int argc, char* argv[])
 {
-    // Usage: camera_inference.exe <model_path> <labels_file_path> <video_input_source> <video_output_source>
-    if (argc < 5)
-    {
+    // Paths to the model, labels, input video, and output video
+    std::string modelPath;
+    std::string labelsPath;
+    std::string videoPath;
+    std::string outputPath;
+
+    // Usage: video_inference.exe <model_path> <labels_file_path> <video_input_source> <video_output_source>
+    if (argc < 5 && !EXAMPLES_ASSETS_DIR_ENABLED) {
         std::cerr << "Usage: video_inference.exe <model_path> <labels_file_path> <video_input_source> <video_output_source>\n";
         return 1;
     }
 
-    // Paths to the model, labels, input video, and output video
-    const std::string modelPath = argv[1];
-    const std::string labelsPath = argv[2];
-    const std::string videoPath = argv[3]; // Input video path
-    const std::string outputPath = argv[4]; // Output video path
-
-
+    if (argc == 5) {
+        modelPath = argv[1];
+        labelsPath = argv[2];
+        videoPath = argv[3];
+        outputPath = argv[4];
+    } else {
+        std::string assets_dir = std::string(EXAMPLES_ASSETS_DIR);
+        modelPath = assets_dir + "/yolo11l.onnx";
+        labelsPath = assets_dir + "/coco.txt";
+        videoPath = assets_dir + "/vid.mp4";
+        outputPath = assets_dir + "/scan.mp4";
+        std::cout << "Selecting assets from " + assets_dir + " directory." << std::endl;
+    }
 
     // Initialize the YOLO detector
     bool isGPU = true; // Set to false for CPU processing
     // YOLO9Detector detector(modelPath, labelsPath, isGPU); // YOLOv9
     // YOLO11Detector detector(modelPath, labelsPath, isGPU); // YOLOv11
-    YOLO12Detector detector(modelPath, labelsPath, isGPU); // YOLOv12
+    Framer::YOLO11Detector detector(modelPath, labelsPath, isGPU); // YOLOv12
 
 
     // Open the video file
@@ -168,7 +180,7 @@ int main(int argc, char* argv[])
         while (frameQueue.dequeue(frame))
         {
             // Detect objects in the frame
-            std::vector<Detection> results = detector.detect(frame);
+            std::vector<Framer::Detection> results = detector.detect(frame);
 
             // Draw bounding boxes on the frame
             detector.drawBoundingBoxMask(frame, results); // Uncomment for mask drawing

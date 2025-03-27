@@ -62,35 +62,49 @@
 // #include "det/YOLO8.hpp"
 // #include "det/YOLO10.hpp"
 // #include "det/YOLO11.hpp"
-#include "det/YOLO12.hpp"
-
+#include "det/YOLO11.hpp"
+#include "utils.hpp"
+#include "exports.h"
 
 // Include the bounded queue
 #include "tools/BoundedThreadSafeQueue.hpp"
 
 int main(int argc, char* argv[])
 {
+    // Paths to the model, labels, video source
+    std::string modelPath;
+    std::string labelsPath;
+    int videoSource;
+
     // Usage: camera_inference.exe <model_path> <labels_file_path> <video_source>
-    if (argc < 4)
-    {
+    if (argc < 4 && !EXAMPLES_ASSETS_DIR_ENABLED) {
         std::cerr << "Usage: camera_inference.exe <model_path> <labels_file_path> <video_source>\n";
         return 1;
     }
 
+    if (argc == 4) {
+        modelPath = argv[1];
+        labelsPath = argv[2];
+        videoSource = std::stoi(argv[3]);
+    } else {
+        std::string assets_dir = std::string(EXAMPLES_ASSETS_DIR);
+        modelPath = assets_dir + "/yolo11l.onnx";
+        labelsPath = assets_dir + "/coco.txt";
+        videoSource = 0; // your usb cam device
+        std::cout << "Selecting assets from " + assets_dir + " directory." << std::endl;
+    }
+
     // Configuration parameters
     const bool isGPU = true;
-    const std::string modelPath = argv[1];
-    const std::string labelsPath = argv[2];
-    const std::string videoSource = argv[3]; // your usb cam device
 
     // Initialize YOLO detector
     // YOLO9Detector detector(modelPath, labelsPath, isGPU);
-    YOLO12Detector detector(modelPath, labelsPath, isGPU);
+    Framer::YOLO11Detector detector(modelPath, labelsPath, isGPU);
 
 
     // Open video capture
     cv::VideoCapture cap;
-    cap.open(0, cv::CAP_V4L2); // Specify V4L2 backend for better performance
+    cap.open(videoSource, cv::CAP_V4L2); // Specify V4L2 backend for better performance
     if (!cap.isOpened())
     {
         std::cerr << "Error: Could not open the camera!\n";
@@ -105,7 +119,7 @@ int main(int argc, char* argv[])
     // Initialize queues with bounded capacity
     const size_t max_queue_size = 2; // Double buffering
     BoundedThreadSafeQueue<cv::Mat> frameQueue(max_queue_size);
-    BoundedThreadSafeQueue<std::pair<cv::Mat, std::vector<Detection>>> processedQueue(max_queue_size);
+    BoundedThreadSafeQueue<std::pair<cv::Mat, std::vector<Framer::Detection>>> processedQueue(max_queue_size);
     std::atomic<bool> stopFlag(false);
 
     // Producer thread: Capture frames
@@ -125,7 +139,7 @@ int main(int argc, char* argv[])
         while (!stopFlag.load() && frameQueue.dequeue(frame))
         {
             // Perform detection
-            std::vector<Detection> detections = detector.detect(frame);
+            std::vector<Framer::Detection> detections = detector.detect(frame);
 
             // Enqueue processed frame
             if (!processedQueue.enqueue(std::make_pair(frame, detections)))
@@ -134,7 +148,7 @@ int main(int argc, char* argv[])
         processedQueue.set_finished();
     });
 
-    std::pair<cv::Mat, std::vector<Detection>> item;
+    std::pair<cv::Mat, std::vector<Framer::Detection>> item;
 
     #ifdef __APPLE__
     // For macOS, ensure UI runs on the main thread

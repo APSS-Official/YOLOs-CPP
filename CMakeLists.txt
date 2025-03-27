@@ -27,11 +27,6 @@ target_compile_features(Framer INTERFACE cxx_std_20)
 target_link_libraries(Framer INTERFACE
     ${OpenCV_LIBS}
     ${OnnxRuntime_LIBRARIES}
-    opencv_core
-    opencv_dnn
-    opencv_features2d
-    opencv_highgui
-    opencv_photo
 )
 
 # Building examples
