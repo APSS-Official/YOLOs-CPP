@@ -32,6 +32,7 @@
 #include <vector>
 #include <memory>
 #include <thread>
+#include <mutex>
 
 // Include debug and custom ScopedTimer tools for performance measurement
 #include "tools/Debug.hpp"
@@ -54,6 +55,7 @@ public:
      * @param modelPath Path to the ONNX model file.
      * @param labelsPath Path to the file containing class labels.
      * @param useGPU Whether to use GPU for inference (default is false).
+     * @throws An std::runtime_error on an invalid input tensor size.
      */
     YOLO11Detector(const std::string &modelPath, const std::string &labelsPath, bool useGPU = false);
     
@@ -74,6 +76,7 @@ public:
      * @param detections Vector of detections.
      */
     void drawBoundingBox(cv::Mat &image, const std::vector<Detection> &detections) const {
+        std::lock_guard<std::mutex> lock_guard(m_mtx);
         Framer::drawBoundingBox(image, detections, classNames, classColors);
     }
     
@@ -83,9 +86,9 @@ public:
      * @param image Image on which to draw.
      * @param detections Vector of detections.
      * @param maskAlpha Alpha value for mask transparency (default is 0.4).
-     * @throws An std::runtime_error on an invalid input tensor size.
      */
     void drawBoundingBoxMask(cv::Mat &image, const std::vector<Detection> &detections, float maskAlpha = 0.4f) const {
+        std::lock_guard<std::mutex> lock_guard(m_mtx);
         Framer::drawBoundingBoxMask(image, detections, classNames, classColors, maskAlpha);
     }
 
@@ -106,6 +109,8 @@ private:
 
     std::vector<std::string> classNames;            // Vector of class names loaded from file
     std::vector<cv::Scalar> classColors;            // Vector of colors for each class
+
+    mutable std::mutex m_mtx;
 
     /**
      * @brief Preprocesses the input image for model inference.
@@ -348,6 +353,7 @@ std::vector<Framer::Detection> YOLO11Detector::postprocess(
 // Detect function implementation
 std::vector<Framer::Detection> YOLO11Detector::detect(const cv::Mat& image, float confThreshold, float iouThreshold) {
 
+    std::lock_guard<std::mutex> lock_guard(m_mtx);
     ScopedTimer timer("Overall detection");
 
     float* blobPtr = nullptr; // Pointer to hold preprocessed image data
