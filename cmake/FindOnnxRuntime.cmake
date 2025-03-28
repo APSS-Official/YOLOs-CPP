@@ -3,8 +3,10 @@
 set(ONNXRUNTIME_VERSION 1.21.0 CACHE STRING "ONNX Runtime version to use")
 
 # Platform specific binaries
-if (Framer_GPU)
+if (FGPU)
     set(ONNXRUNTIME_ACCELARATOR "-gpu")
+else()
+    set(ONNXRUNTIME_ACCELARATOR "")
 endif()
 
 if (WIN32)
@@ -13,6 +15,7 @@ else()
     message(FATAL_ERROR "Framer's OnnxRuntime support for other platforms/accelarators isn't managed yet. Please submit an issue or customize the file at ${CMAKE_CURRENT_LIST_FILE}")
 endif()
 
+# You can also specify a custom link through -DONNXRUNTIME_URL during configuration.
 if (NOT ONNXRUNTIME_URL)
     set(ONNXRUNTIME_URL "https://github.com/microsoft/onnxruntime/releases/download/v${ONNXRUNTIME_VERSION}/${ONNXRUNTIME_FILE_NAME}")
 endif()

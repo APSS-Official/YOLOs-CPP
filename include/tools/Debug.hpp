@@ -1,6 +1,4 @@
-// Debug.hpp
-#ifndef DEBUG_HPP
-#define DEBUG_HPP
+#pragma once
 
 /**
  * @file Debug.hpp
@@ -11,14 +9,10 @@
  * standard output; otherwise, they are ignored.
  */
 
-// Include necessary libraries
-#include <iostream>
-#include "tools/Config.hpp" // Include the config file to access the flags
-
-#ifdef DEBUG_MODE
-#define DEBUG_PRINT(x) std::cout << x << std::endl;
+#ifdef FVERBOSE
+#define DEBUG_PRINT(x) std::cout << x << std::endl
 #else
 #define DEBUG_PRINT(x)
 #endif
 
-#endif // DEBUG_HPP
+#define ERROR_PRINT(x) std::cerr << "Error: " x << std::endl

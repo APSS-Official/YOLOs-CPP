@@ -42,6 +42,9 @@ namespace Framer {
 
 /**
  * @brief YOLO11Detector class handles loading the YOLO model, preprocessing images, running inference, and postprocessing results.
+ * @warning THREAD SAFETY: This class shouldn't be accessed by multiple threads during construction in all circumstances. The
+ *          public member functions are thread-safe, as they share resources and are the only ones visible to the user.
+ *          It is STRONGLY advised to instantiate on the main thread, I don't know the consequences otherwise.
  */
 class YOLO11Detector {
 public:
@@ -80,6 +83,7 @@ public:
      * @param image Image on which to draw.
      * @param detections Vector of detections.
      * @param maskAlpha Alpha value for mask transparency (default is 0.4).
+     * @throws An std::runtime_error on an invalid input tensor size.
      */
     void drawBoundingBoxMask(cv::Mat &image, const std::vector<Detection> &detections, float maskAlpha = 0.4f) const {
         Framer::drawBoundingBoxMask(image, detections, classNames, classColors, maskAlpha);
@@ -146,13 +150,13 @@ YOLO11Detector::YOLO11Detector(const std::string &modelPath, const std::string &
 
     // Configure session options based on whether GPU is to be used and available
     if (useGPU && cudaAvailable != availableProviders.end()) {
-        std::cout << "Inference device: GPU" << std::endl;
+        DEBUG_PRINT("Inference device: GPU");
         sessionOptions.AppendExecutionProvider_CUDA(cudaOption); // Append CUDA execution provider
     } else {
         if (useGPU) {
-            std::cout << "GPU is not supported by your ONNXRuntime build. Fallback to CPU." << std::endl;
+            DEBUG_PRINT("GPU is not supported by your ONNXRuntime build. Fallback to CPU.");
         }
-        std::cout << "Inference device: CPU" << std::endl;
+        DEBUG_PRINT("Inference device: CPU");
     }
 
     // Load the ONNX model into the session
@@ -184,7 +188,7 @@ YOLO11Detector::YOLO11Detector(const std::string &modelPath, const std::string &
     if (inputTensorShapeVec.size() >= 4) {
         inputImageShape = cv::Size(static_cast<int>(inputTensorShapeVec[3]), static_cast<int>(inputTensorShapeVec[2]));
     } else {
-        throw std::runtime_error("Invalid input tensor shape.");
+        throw std::runtime_error("Invalid input tensor shape, the model expects a different input shape.");
     }
 
     // Get the number of input and output nodes
@@ -195,7 +199,7 @@ YOLO11Detector::YOLO11Detector(const std::string &modelPath, const std::string &
     classNames = Framer::getClassNames(labelsPath);
     classColors = Framer::generateColors(classNames);
 
-    std::cout << "Model loaded successfully with " << numInputNodes << " input nodes and " << numOutputNodes << " output nodes." << std::endl;
+    DEBUG_PRINT("Model loaded successfully with " << numInputNodes << " input nodes and " << numOutputNodes << " output nodes.");
 }
 
 // Preprocess function implementation
@@ -223,7 +227,7 @@ cv::Mat YOLO11Detector::preprocess(const cv::Mat &image, float *&blob, std::vect
     }
     cv::split(resizedImage, chw); // Split channels into the blob
 
-    DEBUG_PRINT("Preprocessing completed")
+    DEBUG_PRINT("Preprocessing completed");
 
     return resizedImage;
 }
@@ -336,13 +340,14 @@ std::vector<Framer::Detection> YOLO11Detector::postprocess(
         });
     }
 
-    DEBUG_PRINT("Postprocessing completed") // Debug log for completion
+    DEBUG_PRINT("Postprocessing completed"); // Debug log for completion
 
     return detections;
 }
 
 // Detect function implementation
 std::vector<Framer::Detection> YOLO11Detector::detect(const cv::Mat& image, float confThreshold, float iouThreshold) {
+
     ScopedTimer timer("Overall detection");
 
     float* blobPtr = nullptr; // Pointer to hold preprocessed image data

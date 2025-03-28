@@ -22,7 +22,6 @@
 */
 #pragma once
 
-#include <iostream>
 // #include <algorithm>
 #include <numeric>
 #include <fstream>
@@ -32,7 +31,6 @@
 
 #include <tools/Debug.hpp>
 #include <tools/Config.hpp>
-#include <tools/ScopedTimer.hpp>
 
 namespace Framer {
 
@@ -115,7 +113,7 @@ std::vector<std::string> getClassNames(const std::string &path) {
             classNames.emplace_back(line);
         }
     } else {
-        std::cerr << "ERROR: Failed to access class name path: " << path << std::endl;
+        ERROR_PRINT("Failed to access class name path: " << path);
     }
 
     DEBUG_PRINT("Loaded " << classNames.size() << " class names from " + path);
@@ -465,7 +463,7 @@ inline void drawBoundingBoxMask(cv::Mat &image, const std::vector<Detection> &de
                                 float maskAlpha = 0.4f) {
     // Validate input image
     if (image.empty()) {
-        std::cerr << "ERROR: Empty image provided to drawBoundingBoxMask." << std::endl;
+        ERROR_PRINT("Empty image provided to drawBoundingBoxMask.");
         return;
     }
 
