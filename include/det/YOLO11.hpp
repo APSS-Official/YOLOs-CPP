@@ -111,6 +111,7 @@ private:
     std::vector<cv::Scalar> classColors;            // Vector of colors for each class
 
     mutable std::mutex m_mtx;
+    std::priority_queue<std::string> m_benchmarkQueue;
 
     /**
      * @brief Preprocesses the input image for model inference.
@@ -135,6 +136,8 @@ private:
     std::vector<Detection> postprocess(const cv::Size &originalImageSize, const cv::Size &resizedImageShape,
                                       const std::vector<Ort::Value> &outputTensors,
                                       float confThreshold, float iouThreshold);
+
+    void printBenchmarks();
     
 };
 
@@ -209,7 +212,7 @@ YOLO11Detector::YOLO11Detector(const std::string &modelPath, const std::string &
 
 // Preprocess function implementation
 cv::Mat YOLO11Detector::preprocess(const cv::Mat &image, float *&blob, std::vector<int64_t> &inputTensorShape) {
-    ScopedTimer timer("preprocessing");
+    ScopedTimer timer("preprocessing", &m_benchmarkQueue, 1);
 
     cv::Mat resizedImage;
     // Resize and pad the image using letterBox utility
@@ -232,10 +235,21 @@ cv::Mat YOLO11Detector::preprocess(const cv::Mat &image, float *&blob, std::vect
     }
     cv::split(resizedImage, chw); // Split channels into the blob
 
-    DEBUG_PRINT("Preprocessing completed");
-
     return resizedImage;
 }
+
+inline void YOLO11Detector::printBenchmarks()
+{
+    std::string result;
+    while(!m_benchmarkQueue.empty()) {
+        auto top = m_benchmarkQueue.top();
+        m_benchmarkQueue.pop();
+        result = result + top + (m_benchmarkQueue.empty() ? "" : ", ");
+    }
+
+    DEBUG_PRINT("Speed: " + result);
+}
+
 // Postprocess function to convert raw model output into detections
 std::vector<Framer::Detection> YOLO11Detector::postprocess(
     const cv::Size &originalImageSize,
@@ -244,7 +258,7 @@ std::vector<Framer::Detection> YOLO11Detector::postprocess(
     float confThreshold,
     float iouThreshold
 ) {
-    ScopedTimer timer("postprocessing"); // Measure postprocessing time
+    ScopedTimer timer("postprocessing", &m_benchmarkQueue, 3); // Measure postprocessing time
 
     std::vector<Framer::Detection> detections;
     const float* rawOutput = outputTensors[0].GetTensorData<float>(); // Extract raw output data from the first output tensor
@@ -345,8 +359,6 @@ std::vector<Framer::Detection> YOLO11Detector::postprocess(
         });
     }
 
-    DEBUG_PRINT("Postprocessing completed"); // Debug log for completion
-
     return detections;
 }
 
@@ -354,7 +366,6 @@ std::vector<Framer::Detection> YOLO11Detector::postprocess(
 std::vector<Framer::Detection> YOLO11Detector::detect(const cv::Mat& image, float confThreshold, float iouThreshold) {
 
     std::lock_guard<std::mutex> lock_guard(m_mtx);
-    ScopedTimer timer("Overall detection");
 
     float* blobPtr = nullptr; // Pointer to hold preprocessed image data
     // Define the shape of the input tensor (batch size, channels, height, width)
@@ -384,20 +395,28 @@ std::vector<Framer::Detection> YOLO11Detector::detect(const cv::Mat& image, floa
     );
 
     // Run the inference session with the input tensor and retrieve output tensors
-    std::vector<Ort::Value> outputTensors = session.Run(
-        Ort::RunOptions{nullptr},
-        inputNames.data(),
-        &inputTensor,
-        numInputNodes,
-        outputNames.data(),
-        numOutputNodes
-    );
+    std::vector<Ort::Value> outputTensors;
+    {
+        ScopedTimer timer("inference", &m_benchmarkQueue, 2);
+        outputTensors = session.Run(
+            Ort::RunOptions{nullptr},
+            inputNames.data(),
+            &inputTensor,
+            numInputNodes,
+            outputNames.data(),
+            numOutputNodes
+            );
+    }
 
     // Determine the resized image shape based on input tensor shape
     cv::Size resizedImageShape(static_cast<int>(inputTensorShape[3]), static_cast<int>(inputTensorShape[2]));
 
     // Postprocess the output tensors to obtain detections
     std::vector<Framer::Detection> detections = postprocess(image.size(), resizedImageShape, outputTensors, confThreshold, iouThreshold);
+
+#ifdef FVERBOSE
+    printBenchmarks();
+#endif
 
     return detections; // Return the vector of detections
 }

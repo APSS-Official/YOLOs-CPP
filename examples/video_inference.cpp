@@ -119,7 +119,7 @@ int main(int argc, char* argv[])
         modelPath = assets_dir + "/yolo11l.onnx";
         labelsPath = assets_dir + "/coco.txt";
         videoPath = assets_dir + "/vid.mp4";
-        outputPath = assets_dir + "/scan.mp4";
+        outputPath = assets_dir + "/../../../scan.mp4"; // Outside the project dir
         std::cout << "Selecting assets from " + assets_dir + " directory." << std::endl;
     }
 
@@ -210,7 +210,7 @@ int main(int argc, char* argv[])
     out.release();
     cv::destroyAllWindows();
 
-    std::cout << "Video processing completed successfully." << std::endl;
+    std::cout << "Video processing completed successfully. Saved " << outputPath << std::endl;
 
     return 0;
 }

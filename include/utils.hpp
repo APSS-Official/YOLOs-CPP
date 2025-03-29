@@ -270,7 +270,7 @@ void NMSBoxes(const std::vector<BoundingBox>& boundingBoxes,
 
     const size_t numBoxes = boundingBoxes.size();
     if (numBoxes == 0) {
-        DEBUG_PRINT("No bounding boxes to process in NMS");
+        // DEBUG_PRINT("No bounding boxes to process in NMS");
         return;
     }
 
@@ -286,7 +286,7 @@ void NMSBoxes(const std::vector<BoundingBox>& boundingBoxes,
 
     // If no boxes remain after thresholding
     if (sortedIndices.empty()) {
-        DEBUG_PRINT("No bounding boxes above score threshold");
+        // DEBUG_PRINT("No bounding boxes above score threshold");
         return;
     }
 
@@ -352,7 +352,7 @@ void NMSBoxes(const std::vector<BoundingBox>& boundingBoxes,
         }
     }
 
-    DEBUG_PRINT("NMS completed with " + std::to_string(indices.size()) + " indices remaining");
+    // DEBUG_PRINT("NMS completed with " + std::to_string(indices.size()) + " indices remaining");
 }
 
 
@@ -518,6 +518,6 @@ inline void drawBoundingBoxMask(cv::Mat &image, const std::vector<Detection> &de
         cv::putText(image, label, cv::Point(detection->box.x + 2, labelY - 2), cv::FONT_HERSHEY_SIMPLEX, fontSize, cv::Scalar(255, 255, 255), textThickness, cv::LINE_AA);
     }
 
-    DEBUG_PRINT("Bounding boxes and masks drawn on image.");
+    // DEBUG_PRINT("Bounding boxes and masks drawn on image.");
 }
 }

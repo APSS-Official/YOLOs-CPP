@@ -30,8 +30,8 @@ add_library(Framer::Framer ALIAS Framer)
 
 # Some definitions being exposed to C++, optionally defined.
 target_compile_definitions(Framer INTERFACE
-    $<$<BOOL:${FGPU}>:FHAS_GPU=1>
-    $<$<BOOL:${FBENCHMARK}>:FHAS_BENCHMARKS=1>
+    $<$<BOOL:${FGPU}>:FGPU=1>
+    $<$<BOOL:${FBENCHMARK}>:FBENCHMARK=1>
     $<$<BOOL:${FVERBOSE}>:FVERBOSE=1>
     $<$<CONFIG:Debug>:FDEBUG>
     $<$<CONFIG:RelWithDebInfo>:FDEBUG>
