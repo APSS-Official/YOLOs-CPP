@@ -37,7 +37,7 @@
 // Include debug and custom ScopedTimer tools for performance measurement
 #include "tools/Debug.hpp"
 #include "tools/ScopedTimer.hpp"
-#include "utils.hpp"
+#include <utils/utils.hpp>
 
 namespace Framer {
 
@@ -281,13 +281,13 @@ std::vector<Framer::Detection> YOLO11Detector::postprocess(
     }
 
     // Reserve memory for efficient appending
-    std::vector<Framer::BoundingBox> boxes;
+    std::vector<cv::Rect> boxes;
     boxes.reserve(num_detections);
     std::vector<float> confs;
     confs.reserve(num_detections);
     std::vector<int> classIds;
     classIds.reserve(num_detections);
-    std::vector<Framer::BoundingBox> nms_boxes;
+    std::vector<cv::Rect> nms_boxes;
     nms_boxes.reserve(num_detections);
 
     // Constants for indexing
@@ -318,22 +318,22 @@ std::vector<Framer::Detection> YOLO11Detector::postprocess(
             float top = centerY - height / 2.0f;
 
             // Scale to original image size
-            Framer::BoundingBox scaledBox = Framer::scaleCoords(
+            cv::Rect scaledBox = Framer::scaleCoords(
                 resizedImageShape,
-                Framer::BoundingBox(left, top, width, height),
+                cv::Rect(left, top, width, height),
                 originalImageSize,
                 true
             );
 
             // Round coordinates for integer pixel positions
-            Framer::BoundingBox roundedBox;
+            cv::Rect roundedBox;
             roundedBox.x = std::round(scaledBox.x);
             roundedBox.y = std::round(scaledBox.y);
             roundedBox.width = std::round(scaledBox.width);
             roundedBox.height = std::round(scaledBox.height);
 
             // Adjust NMS box coordinates to prevent overlap between classes
-            Framer::BoundingBox nmsBox = roundedBox;
+            cv::Rect nmsBox = roundedBox;
             nmsBox.x += classId * 7680; // Arbitrary offset to differentiate classes
             nmsBox.y += classId * 7680;
 

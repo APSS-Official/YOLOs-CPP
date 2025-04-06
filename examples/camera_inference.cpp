@@ -63,7 +63,7 @@
 // #include "det/YOLO10.hpp"
 // #include "det/YOLO11.hpp"
 #include "det/YOLO11.hpp"
-#include "utils.hpp"
+#include <utils/utils.hpp>
 #include "exports.h"
 
 // Include the bounded queue
@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
         videoSource = std::stoi(argv[3]);
     } else {
         std::string assets_dir = std::string(EXAMPLES_ASSETS_DIR);
-        modelPath = assets_dir + "/yolo11l.onnx";
+        modelPath = assets_dir + "/../../scripts/yolo11n.onnx";
         labelsPath = assets_dir + "/coco.txt";
         videoSource = 0; // your usb cam device
         std::cout << "Selecting assets from " + assets_dir + " directory." << std::endl;

@@ -2,6 +2,8 @@
 /build
 /build/*
 ./build
+scripts/*.pt
+scripts/*.onnx
 
 # CMake files
 CMakeCache.txt

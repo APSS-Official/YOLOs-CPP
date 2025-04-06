@@ -116,7 +116,7 @@ int main(int argc, char* argv[])
         outputPath = argv[4];
     } else {
         std::string assets_dir = std::string(EXAMPLES_ASSETS_DIR);
-        modelPath = assets_dir + "/yolo11l.onnx";
+        modelPath = assets_dir + "/../../scripts/yolo11n.onnx";
         labelsPath = assets_dir + "/coco.txt";
         videoPath = assets_dir + "/vid.mp4";
         outputPath = assets_dir + "/../../../scan.mp4"; // Outside the project dir

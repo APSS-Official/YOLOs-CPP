@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
         imagePath = argv[3];
     } else {
         std::string assets_dir = std::string(EXAMPLES_ASSETS_DIR);
-        modelPath = assets_dir + "/yolo11l.onnx";
+        modelPath = assets_dir + "/../../scripts/yolo11n.onnx";
         labelsPath = assets_dir + "/coco.txt";
         imagePath = assets_dir + "/img1.jpg";
         std::cout << "Selecting assets from " + assets_dir + " directory." << std::endl;
@@ -98,14 +98,8 @@ int main(int argc, char* argv[])
     // Enforcing a small preview. Because of the image size I'm trying to load (3000x4000)
     cv::resize(image, image, cv::Size(480, 640));
 
-    // Detect objects in the image and measure execution time
-    auto start = std::chrono::high_resolution_clock::now();
+    // Detect objects in the image
     std::vector<Framer::Detection> results = detector.detect(image);
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
-                        std::chrono::high_resolution_clock::now() - start);
-
-    // std::cout << "Detection completed in: " << duration.count() << " ms" << std::endl;
-
 
     // Draw bounding boxes on the image
     detector.drawBoundingBox(image, results); // simple bbox drawing
