@@ -29,9 +29,7 @@
 
 #include <opencv2/opencv.hpp>
 
-#include <tools/Debug.hpp>
-#include <tools/Config.hpp>
-
+#include <utils/debug.hpp>
 #include <utils/detection.hpp>
 
 namespace Framer {

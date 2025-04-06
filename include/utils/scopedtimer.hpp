@@ -33,12 +33,10 @@
  */
 
 #include <chrono>
-#include <iostream>
 #include <string>
 #include <queue>
 
-#include "tools/Config.hpp" // Include the config file to access the flags
-#include "tools/Debug.hpp"
+#include <utils/debug.hpp>
 
 #ifdef FBENCHMARK
 class ScopedTimer {

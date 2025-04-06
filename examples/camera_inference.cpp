@@ -67,7 +67,7 @@
 #include "exports.h"
 
 // Include the bounded queue
-#include "tools/BoundedThreadSafeQueue.hpp"
+#include <utils/boundedthreadsafequeue.hpp>
 
 int main(int argc, char* argv[])
 {

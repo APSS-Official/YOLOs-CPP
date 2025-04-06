@@ -36,8 +36,8 @@
 #include <thread>
 
 // Include debug and custom ScopedTimer tools for performance measurement
-#include "tools/Debug.hpp"
-#include "tools/ScopedTimer.hpp"
+#include <utils/debug.hpp>
+#include <utils/scopedtimer.hpp>
 
 /**
  * @brief Confidence threshold for filtering detections.
