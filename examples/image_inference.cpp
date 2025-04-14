@@ -41,13 +41,7 @@
 #include <iostream>
 #include <string>
 
-// #include "det/YOLO5.hpp"  // Uncomment for YOLOv5
-// #include "det/YOLO7.hpp"  // Uncomment for YOLOv7
-// #include "det/YOLO8.hpp"  // Uncomment for YOLOv8
-// #include "det/YOLO9.hpp"  // Uncomment for YOLOv9
-// #include "det/YOLO10.hpp" // Uncomment for YOLOv10
-// #include "det/YOLO11.hpp" // Uncomment for YOLOv11
-#include "det/YOLO11.hpp" // Uncomment for YOLOv12
+#include "det/YOLO11.hpp"
 #include "exports.h"
 
 
@@ -78,12 +72,7 @@ int main(int argc, char* argv[])
 
     // Initialize the YOLO detector with the chosen model and labels
     bool isGPU = false; // Set to false for CPU processing
-    // YOLO7Detector detector(modelPath, labelsPath, isGPU);
-    // YOLO5Detector detector(modelPath, labelsPath, isGPU);  // Uncomment for YOLOv5
-    // YOLO8Detector detector(modelPath, labelsPath, isGPU);  // Uncomment for YOLOv8
-    // YOLO9Detector detector(modelPath, labelsPath, isGPU); // Uncomment for YOLOv9
-    // YOLO10Detector detector(modelPath, labelsPath, isGPU); // Uncomment for YOLOv10
-    // YOLO11Detector detector(modelPath, labelsPath, isGPU); // Uncomment for YOLOv11
+
     Framer::YOLO11Detector detector(modelPath, labelsPath, isGPU); // Uncomment for YOLOv12
 
 

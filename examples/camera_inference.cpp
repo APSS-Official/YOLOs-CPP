@@ -54,14 +54,6 @@
 #include <atomic>
 
 #include <opencv2/highgui/highgui.hpp>
-
-// Uncomment the version
-// #include "det/YOLO5.hpp"
-// #include "det/YOLO7.hpp"
-// #include "det/YOLO9.hpp"
-// #include "det/YOLO8.hpp"
-// #include "det/YOLO10.hpp"
-// #include "det/YOLO11.hpp"
 #include "det/YOLO11.hpp"
 #include <utils/utils.hpp>
 #include "exports.h"
@@ -104,7 +96,7 @@ int main(int argc, char* argv[])
 
     // Open video capture
     cv::VideoCapture cap;
-    cap.open(videoSource, cv::CAP_V4L2); // Specify V4L2 backend for better performance
+    cap.open(videoSource); // Specify V4L2 backend for better performance
     if (!cap.isOpened())
     {
         std::cerr << "Error: Could not open the camera!\n";

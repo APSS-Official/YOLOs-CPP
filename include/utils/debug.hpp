@@ -11,8 +11,11 @@
 
 #ifdef FVERBOSE
 #define DEBUG_PRINT(x) std::cout << x << std::endl
+#define INFO_PRINT(x) std::cout << x << std::endl
 #else
 #define DEBUG_PRINT(x)
+#define INFO_PRINT(x)
 #endif
 
-#define ERROR_PRINT(x) std::cerr << "Error: " x << std::endl
+#define ERROR_PRINT(x) std::cerr << "Error: " << x << std::endl
+#define FATAL_PRINT(x) std::cerr << "Fatal: " << x << std::endl; exit(1)

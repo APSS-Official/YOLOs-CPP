@@ -98,6 +98,12 @@ size_t vectorProduct(const std::vector<int64_t> &vector) {
     return std::accumulate(vector.begin(), vector.end(), 1ull, std::multiplies<size_t>());
 }
 
+cv::Mat sigmoid(const cv::Mat& src) {
+    cv::Mat dst;
+    cv::exp(-src, dst);
+    dst = 1.0 / (1.0 + dst);
+    return dst;
+}
 
 /**
      * @brief Resizes an image with letterboxing to maintain aspect ratio.
@@ -227,102 +233,66 @@ cv::Rect scaleCoords(const cv::Size &imageShape, cv::Rect coords,
      * @param nmsThreshold IoU threshold for NMS.
      * @param indices Output vector of indices that survive NMS.
      */
-// Optimized Non-Maximum Suppression Function
-void NMSBoxes(const std::vector<cv::Rect>& boundingBoxes,
-              const std::vector<float>& scores,
-              float scoreThreshold,
-              float nmsThreshold,
-              std::vector<int>& indices)
-{
+inline void NMSBoxes(const std::vector<cv::Rect> &boxes,
+                     const std::vector<float> &scores,
+                     float scoreThreshold,
+                     float nmsThreshold,
+                     std::vector<int> &indices) {
     indices.clear();
-
-    const size_t numBoxes = boundingBoxes.size();
-    if (numBoxes == 0) {
-        // DEBUG_PRINT("No bounding boxes to process in NMS");
+    if (boxes.empty()) {
         return;
     }
 
-    // Step 1: Filter out boxes with scores below the threshold
-    // and create a list of indices sorted by descending scores
-    std::vector<int> sortedIndices;
-    sortedIndices.reserve(numBoxes);
-    for (size_t i = 0; i < numBoxes; ++i) {
+    std::vector<int> order;
+    order.reserve(boxes.size());
+    for (size_t i = 0; i < boxes.size(); ++i) {
         if (scores[i] >= scoreThreshold) {
-            sortedIndices.push_back(static_cast<int>(i));
+            order.push_back((int)i);
         }
     }
+    if (order.empty()) return;
 
-    // If no boxes remain after thresholding
-    if (sortedIndices.empty()) {
-        // DEBUG_PRINT("No bounding boxes above score threshold");
-        return;
-    }
-
-    // Sort the indices based on scores in descending order
-    std::sort(sortedIndices.begin(), sortedIndices.end(),
-              [&scores](int idx1, int idx2) {
-                  return scores[idx1] > scores[idx2];
+    std::sort(order.begin(), order.end(),
+              [&scores](int a, int b) {
+                  return scores[a] > scores[b];
               });
 
-    // Step 2: Precompute the areas of all boxes
-    std::vector<float> areas(numBoxes, 0.0f);
-    for (size_t i = 0; i < numBoxes; ++i) {
-        areas[i] = boundingBoxes[i].width * boundingBoxes[i].height;
+    std::vector<float> areas(boxes.size());
+    for (size_t i = 0; i < boxes.size(); ++i) {
+        areas[i] = (float)(boxes[i].width * boxes[i].height);
     }
 
-    // Step 3: Suppression mask to mark boxes that are suppressed
-    std::vector<bool> suppressed(numBoxes, false);
+    std::vector<bool> suppressed(boxes.size(), false);
+    for (size_t i = 0; i < order.size(); ++i) {
+        int idx = order[i];
+        if (suppressed[idx]) continue;
 
-    // Step 4: Iterate through the sorted list and suppress boxes with high IoU
-    for (size_t i = 0; i < sortedIndices.size(); ++i) {
-        int currentIdx = sortedIndices[i];
-        if (suppressed[currentIdx]) {
-            continue;
-        }
+        indices.push_back(idx);
 
-        // Select the current box as a valid detection
-        indices.push_back(currentIdx);
+        for (size_t j = i + 1; j < order.size(); ++j) {
+            int idx2 = order[j];
+            if (suppressed[idx2]) continue;
 
-        const cv::Rect& currentBox = boundingBoxes[currentIdx];
-        const float x1_max = currentBox.x;
-        const float y1_max = currentBox.y;
-        const float x2_max = currentBox.x + currentBox.width;
-        const float y2_max = currentBox.y + currentBox.height;
-        const float area_current = currentBox.area();
+            const cv::Rect &a = boxes[idx];
+            const cv::Rect &b = boxes[idx2];
+            int interX1 = std::max(a.x, b.x);
+            int interY1 = std::max(a.y, b.y);
+            int interX2 = std::min(a.x + a.width,  b.x + b.width);
+            int interY2 = std::min(a.y + a.height, b.y + b.height);
 
-        // Compare IoU of the current box with the rest
-        for (size_t j = i + 1; j < sortedIndices.size(); ++j) {
-            int compareIdx = sortedIndices[j];
-            if (suppressed[compareIdx]) {
-                continue;
-            }
-
-            const cv::Rect& compareBox = boundingBoxes[compareIdx];
-            const float x1 = std::max(x1_max, static_cast<float>(compareBox.x));
-            const float y1 = std::max(y1_max, static_cast<float>(compareBox.y));
-            const float x2 = std::min(x2_max, static_cast<float>(compareBox.x + compareBox.width));
-            const float y2 = std::min(y2_max, static_cast<float>(compareBox.y + compareBox.height));
-
-            const float interWidth = x2 - x1;
-            const float interHeight = y2 - y1;
-
-            if (interWidth <= 0 || interHeight <= 0) {
-                continue;
-            }
-
-            const float intersection = interWidth * interHeight;
-            const float unionArea = area_current + areas[compareIdx] - intersection;
-            const float iou = (unionArea > 0.0f) ? (intersection / unionArea) : 0.0f;
-
-            if (iou > nmsThreshold) {
-                suppressed[compareIdx] = true;
+            int w = interX2 - interX1;
+            int h = interY2 - interY1;
+            if (w > 0 && h > 0) {
+                float interArea = (float)(w * h);
+                float unionArea = areas[idx] + areas[idx2] - interArea;
+                float iou = (unionArea > 0.f)? (interArea / unionArea) : 0.f;
+                if (iou > nmsThreshold) {
+                    suppressed[idx2] = true;
+                }
             }
         }
     }
-
-    // DEBUG_PRINT("NMS completed with " + std::to_string(indices.size()) + " indices remaining");
 }
-
 
 /**
      * @brief Generates a vector of colors for each class name.

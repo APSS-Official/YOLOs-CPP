@@ -3,6 +3,7 @@
 /build/*
 ./build
 scripts/*.pt
+# The examples expect models in this directory.
 scripts/*.onnx
 
 # CMake files

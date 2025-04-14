@@ -32,7 +32,7 @@ public:
         cv_not_full.wait(lock, [this]() { return q.size() < max_size_ || finished; });
         if (finished) return false;
         q.push(std::move(item));
-        DEBUG_PRINT("Enqueued item, current queue size: " << q.size());
+        // DEBUG_PRINT("Enqueued item, current queue size: " << q.size());
         cv_not_empty.notify_one();
         return true;
     }
@@ -43,7 +43,7 @@ public:
         if (q.empty()) return false;
         item = std::move(q.front());
         q.pop();
-        DEBUG_PRINT("Dequeued item, current queue size: " << q.size());
+        // DEBUG_PRINT("Dequeued item, current queue size: " << q.size());
         cv_not_full.notify_one();
         return true;
     }
