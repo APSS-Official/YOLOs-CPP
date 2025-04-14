@@ -1,53 +1,25 @@
-/**
- * @file camera_inference.cpp
- * @brief Real-time object detection using YOLO models (v5, v7, v8, v9, v10, v11, v12) with camera input.
- * 
- * This file serves as the main entry point for a real-time object detection 
- * application that utilizes YOLO (You Only Look Once) models, specifically 
- * versions 5, 7, 8, 9, 10, 11 and 12. The application captures video frames from a 
- * specified camera device, processes those frames to detect objects, and 
- * displays the results with bounding boxes around detected objects.
- *
- * The program operates in a multi-threaded environment, featuring the following 
- * threads:
- * 1. **Producer Thread**: Responsible for capturing frames from the video source 
- *    and enqueuing them into a thread-safe bounded queue for subsequent processing.
- * 2. **Consumer Thread**: Dequeues frames from the producer's queue, executes 
- *    object detection using the specified YOLO model, and enqueues the processed 
- *    frames along with detection results into another thread-safe bounded queue.
- * 3. **Display Thread**: Dequeues processed frames from the consumer's queue, 
- *    draws bounding boxes around detected objects, and displays the frames to the 
- *    user.
- *
- * Configuration parameters can be adjusted to suit specific requirements:
- * - `isGPU`: Set to true to enable GPU processing for improved performance; 
- *   set to false for CPU processing.
- * - `labelsPath`: Path to the class labels file (e.g., COCO dataset).
- * - `modelPath`: Path to the desired YOLO model file (e.g., ONNX format).
- * - `videoSource`: Path to the video capture device (e.g., camera).
- *
- * The application employs a double buffering technique by maintaining two bounded 
- * queues to efficiently manage the flow of frames between the producer and 
- * consumer threads. This setup helps prevent processing delays due to slow frame 
- * capture or detection times.
- *
- * Debugging messages can be enabled by defining the `DEBUG_MODE` macro, allowing 
- * developers to trace the execution flow and internal state of the application 
- * during runtime.
- *
- * Usage Instructions:
- * 1. Compile the application with the necessary OpenCV and YOLO dependencies.
- * 2. Run the executable to initiate the object detection process.
- * 3. Press 'q' to quit the application at any time.
- *
- * @note Ensure that the required model files and labels are present in the 
- * specified paths before running the application.
- *
- * Author: Abdalrahman M. Amer, www.linkedin.com/in/abdalrahman-m-amer
- * Date: 29.09.2024
- */
+/*
+    Copyright (c) 2024-2025 Abdalrahman M. Amer
+    Copyright (c) 2025 APSS-Official
 
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
 
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+*/
 #include <iostream>
 #include <vector>
 #include <thread>

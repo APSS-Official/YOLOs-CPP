@@ -1,19 +1,26 @@
+/*
+    Copyright (c) 2024-2025 Abdalrahman M. Amer
+    Copyright (c) 2025 APSS-Official
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+*/
 #pragma once
-
-// ====================================================
-// Single YOLO11 Segmentation and Detection Header File
-// ====================================================
-//
-// This header defines the YOLO11Segmentor class for performing object detection
-// and segmentation using the YOLOv11 model. It includes necessary libraries, 
-// utility structures, and helper functions to facilitate model inference 
-// and result post-processing.
-//
-// Author: Abdalrahman M. Amer, www.linkedin.com/in/abdalrahman-m-amer
-// Date: 25.01.2025
-//
-// ====================================================
-
 
 #include "utils/utils.hpp"
 #include <onnxruntime_cxx_api.h>
