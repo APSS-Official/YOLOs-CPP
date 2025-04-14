@@ -49,6 +49,16 @@ find_package_handle_standard_args(OnnxRuntime REQUIRED_VARS
 )
 
 if (OnnxRuntime_FOUND)
-    set(OnnxRuntime_LIBRARIES ${OnnxRuntime_LIBRARY} ${OnnxRuntime_PROVIDERS_SHARED_LIBRARY})
-    set(OnnxRuntime_INCLUDE_DIRS ${OnnxRuntime_INCLUDE_DIR})
+    add_library(OnnxRuntime UNKNOWN IMPORTED)
+    set_target_properties(OnnxRuntime PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES "${OnnxRuntime_INCLUDE_DIR}"
+        IMPORTED_LINK_INTERFACE_LIBRARIES "${OnnxRuntime_LIBRARY};${OnnxRuntime_PROVIDERS_SHARED_LIBRARY}"
+    )
+
+    # ---  Specify library locations ---
+    set_property(TARGET OnnxRuntime PROPERTY IMPORTED_LOCATION_RELEASE "${OnnxRuntime_LIBRARY}")
+    set_property(TARGET OnnxRuntime PROPERTY IMPORTED_LOCATION_DEBUG "${OnnxRuntime_LIBRARY}") # If you have a debug version
+    set_property(TARGET OnnxRuntime PROPERTY IMPORTED_LOCATION_RELWITHDEBINFO "${OnnxRuntime_LIBRARY}") # If you have a RelWithDebInfo version
+    set_property(TARGET OnnxRuntime PROPERTY IMPORTED_LOCATION_MINSIZEREL "${OnnxRuntime_LIBRARY}") # If you have a MinSizeRel version
+    # --- End of section ---
 endif()

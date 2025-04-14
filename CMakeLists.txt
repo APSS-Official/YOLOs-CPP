@@ -45,7 +45,7 @@ target_include_directories(Framer INTERFACE
 target_compile_features(Framer INTERFACE cxx_std_20)
 target_link_libraries(Framer INTERFACE
     ${OpenCV_LIBS}
-    ${OnnxRuntime_LIBRARIES}
+    OnnxRuntime # You have to provide a similar cmake/FindOnnxRuntime.cmake
 )
 
 # Building examples
