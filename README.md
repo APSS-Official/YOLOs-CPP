@@ -11,7 +11,7 @@
 
 
 ## Disclaimer
-The original code belonged to [YOLOs-CPP](https://github.com/Geekgineer/YOLOs-CPP) by Geekgineer. Although they mentioned the type of license at the bottom, but have not provided a license file. We'll be maintaining this repo according to our needs. Thanks you Geekgineer!
+The original code belonged to [YOLOs-CPP](https://github.com/Geekgineer/YOLOs-CPP) by Geekgineer. Although they mentioned the type of license at the bottom, but have not provided a license file. I'll be maintaining this repo according to my needs. Thank you Geekgineer!
 
 **The rest of instructions, code and rules will be changed soon.**
 
